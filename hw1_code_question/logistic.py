@@ -1,7 +1,6 @@
 """ Methods for doing logistic regression."""
 
 import numpy as np
-import math as math
 from utils import sigmoid
 
 
@@ -116,15 +115,15 @@ def logistic_pen(weights, data, targets, hyperparameters):
     bias_weights = weights[weights.shape[0]-1]
     non_bias_weights = weights[:-1]
 
-    I = np.ones(non_bias_weights.shape)
-    hyper_field = hyperparameters['weight_decay'] * I
     z = new_data.dot(weights)
     non_bias_weights_pow_2 = np.square(non_bias_weights)
 
-    log_p_w = -np.squeeze(hyper_field.T.dot( non_bias_weights_pow_2 ))/2.0  - ( np.log( 2.0 * math.pi ) - np.log( hyperparameters['weight_decay'] ) ) / 2.0
+    log_p_w = - hyperparameters['weight_decay'] * np.sum( non_bias_weights_pow_2 ) /2.0
+
     f = np.squeeze( ( np.ones((targets.shape) ) - targets ).T.dot(z)) + np.sum(np.log((1.0 + np.exp(-z)))) + log_p_w
+
     df_0 = np.sum(y - targets).reshape(1,1)
-    df_j = data.T.dot(y - targets) - hyper_field.T.dot(non_bias_weights)
+    df_j = data.T.dot(y - targets) - hyperparameters['weight_decay'] * non_bias_weights
     df = np.concatenate((df_j, df_0), axis=0)
 
     return f, df

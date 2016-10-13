@@ -36,7 +36,18 @@ def run_logistic_regression(hyperparameters):
             raise ValueError("nan/inf error")
 
         # update parameters
-        weights = weights - hyperparameters['learning_rate'] * df / N
+        if hyperparameters['weight_regularization'] is True:
+            weights_j = weights[:-1]
+            df_j = df[:-1]
+            weights_0 = weights[weights.shape[0]-1]
+            df_0 = df[df.shape[0]-1]
+
+            weights_0 = (weights_0 - hyperparameters['learning_rate'] * df_0 / N).reshape(1,1)
+            weights_j = weights_j - hyperparameters['learning_rate'] * df_j / N - hyperparameters['weight_decay'] * weights_j
+
+            weights = np.concatenate((weights_j, weights_0), axis=0)
+        else:
+            weights = weights - hyperparameters['learning_rate'] * df / N
 
         # Make a prediction on the valid_inputs.
         predictions_valid = logistic_predict(weights, valid_inputs)
@@ -92,11 +103,12 @@ if __name__ == '__main__':
 
     # TODO generate plots
     x = range(hyperparameters['num_iterations'])
-    y1 = logging[:,2]
-    y2 = logging[:,4]
+    y1 = logging[:,1]
+    y2 = logging[:,3]
+
     plt.plot(x, y1, color='r', linewidth=2.5, linestyle='-', label='Training')
     plt.plot(x, y2, color='b', linewidth=2.5, linestyle='-', label='Validation')
-    plt.yticks(np.arange(0, 105, 5))
+    plt.gca().set_ylim(bottom=0)
     plt.legend(loc='lower right')
 
     plt.show()
