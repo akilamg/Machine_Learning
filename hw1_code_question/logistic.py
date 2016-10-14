@@ -80,7 +80,7 @@ def logistic(weights, data, targets, hyperparameters):
         new_data = np.ones((data.shape[0], data.shape[1] + 1))
         new_data[:, :-1] = data
         z = new_data.dot(weights)
-        f = np.squeeze( ( np.ones((targets.shape) ) - targets).T.dot( z ) )+ np.sum( np.log( ( 1.0 + np.exp( -z ) ) ) )
+        f = np.squeeze( ( np.ones( (targets.shape) ) - targets).T.dot( z ) )+ np.sum( np.log( ( 1.0 + np.exp( -z ) ) ) )
         df = new_data.T.dot( y - targets )
 
     return f, df, y
@@ -120,10 +120,10 @@ def logistic_pen(weights, data, targets, hyperparameters):
 
     log_p_w = - hyperparameters['weight_decay'] * np.sum( non_bias_weights_pow_2 ) /2.0
 
-    f = np.squeeze( ( np.ones((targets.shape) ) - targets ).T.dot(z)) + np.sum(np.log((1.0 + np.exp(-z)))) + log_p_w
+    f = np.squeeze( ( np.ones((targets.shape) ) - targets ).T.dot(z)) + np.sum(np.log((1.0 + np.exp(-z)))) - log_p_w
 
     df_0 = np.sum(y - targets).reshape(1,1)
-    df_j = data.T.dot(y - targets) - hyperparameters['weight_decay'] * non_bias_weights
+    df_j = data.T.dot(y - targets) + hyperparameters['weight_decay'] * non_bias_weights
     df = np.concatenate((df_j, df_0), axis=0)
 
     return f, df

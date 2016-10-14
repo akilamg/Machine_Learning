@@ -7,7 +7,7 @@ def run_logistic_regression(hyperparameters):
     # TODO specify training data
     train_inputs, train_targets = load_train()
 
-    valid_inputs, valid_targets = load_test()
+    valid_inputs, valid_targets = load_valid()
 
     # N is number of examples; M is the number of features per example.
     N, M = train_inputs.shape
@@ -36,18 +36,7 @@ def run_logistic_regression(hyperparameters):
             raise ValueError("nan/inf error")
 
         # update parameters
-        if hyperparameters['weight_regularization'] is True:
-            weights_j = weights[:-1]
-            df_j = df[:-1]
-            weights_0 = weights[weights.shape[0]-1]
-            df_0 = df[df.shape[0]-1]
-
-            weights_0 = (weights_0 - hyperparameters['learning_rate'] * df_0 / N).reshape(1,1)
-            weights_j = weights_j - hyperparameters['learning_rate'] * df_j / N - hyperparameters['weight_decay'] * weights_j
-
-            weights = np.concatenate((weights_j, weights_0), axis=0)
-        else:
-            weights = weights - hyperparameters['learning_rate'] * df / N
+        weights = weights - hyperparameters['learning_rate'] * df / N
 
         # Make a prediction on the valid_inputs.
         predictions_valid = logistic_predict(weights, valid_inputs)
@@ -91,7 +80,7 @@ if __name__ == '__main__':
                     'learning_rate': 0.1,
                     'weight_regularization': True, # boolean, True for using Gaussian prior on weights
                     'num_iterations': 500,
-                    'weight_decay': 0.01 # related to standard deviation of weight prior
+                    'weight_decay': 1.0 # related to standard deviation of weight prior
                     }
 
     # average over multiple runs
@@ -109,6 +98,6 @@ if __name__ == '__main__':
     plt.plot(x, y1, color='r', linewidth=2.5, linestyle='-', label='Training')
     plt.plot(x, y2, color='b', linewidth=2.5, linestyle='-', label='Validation')
     plt.gca().set_ylim(bottom=0)
-    plt.legend(loc='lower right')
+    plt.legend(loc='upper right')
 
-    plt.show()
+   # plt.show()
